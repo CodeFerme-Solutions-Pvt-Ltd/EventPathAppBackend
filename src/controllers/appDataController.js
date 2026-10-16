@@ -1,5 +1,6 @@
 import {
   getAppDataFromDb,
+  getAppUpdateConfigFromDb,
   addPreferenceToDb,
   addOrganizerToDb,
 } from '../services/appDataService.js';
@@ -11,6 +12,16 @@ export async function getAppData(req, res) {
   } catch (error) {
     console.error('Error in getAppData:', error);
     return res.status(500).json({ error: 'Failed to retrieve application configuration data.' });
+  }
+}
+
+export async function getAppUpdateConfig(req, res) {
+  try {
+    const config = await getAppUpdateConfigFromDb();
+    return res.status(200).json(config);
+  } catch (error) {
+    console.error('Error in getAppUpdateConfig:', error);
+    return res.status(500).json({ error: 'Failed to retrieve app update configuration.' });
   }
 }
 

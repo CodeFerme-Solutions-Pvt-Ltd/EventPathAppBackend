@@ -38,7 +38,44 @@ export async function getAppDataFromDb() {
     names: organizersList,
   };
 
+  // 4. Fetch App Update Config
+  appData.UpdateConfig = await getAppUpdateConfigFromDb();
+
   return appData;
+}
+
+/**
+ * Retrieves the active app update configuration for mobile clients.
+ * Formatted directly for UpdateScreen in frontend eventpath.
+ * 
+ * @returns {Promise<Object>}
+ */
+export async function getAppUpdateConfigFromDb() {
+  try {
+    const res = await query(
+      `SELECT * FROM app_update_config_view WHERE id = 'default' LIMIT 1;`
+    );
+    if (res.rows.length > 0) {
+      const row = res.rows[0];
+      return {
+        title: row.title,
+        updateLink: row.updateLink,
+        aboutUpdate: row.aboutUpdate,
+        latestVersion: row.latestVersion,
+        isUpdateAvailable: row.isUpdateAvailable,
+      };
+    }
+  } catch (err) {
+    console.warn('Notice: app_update_config table not queried:', err.message);
+  }
+
+  return {
+    title: 'Newer Version Available',
+    updateLink: 'https://play.google.com/store/apps/details?id=com.codeferme.eventpath',
+    aboutUpdate: 'New performance improvements and bug fixes. A newer version is available. Update and continue the usage.',
+    latestVersion: '3.10.3',
+    isUpdateAvailable: false,
+  };
 }
 
 /**

@@ -21,3 +21,4 @@
 \i 09_app_preferences.sql
 \i 10_app_organizers.sql
 \i 11_app_stats.sql
+\i 12_app_update_config.sql
