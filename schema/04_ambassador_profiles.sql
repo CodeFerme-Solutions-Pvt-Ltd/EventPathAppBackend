@@ -6,6 +6,7 @@
 CREATE TABLE IF NOT EXISTS ambassador_profiles (
     user_id VARCHAR(64) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     organization_name VARCHAR(255) NOT NULL,
+    department VARCHAR(255),
     picture_url TEXT,
     picture_path TEXT,
     status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),

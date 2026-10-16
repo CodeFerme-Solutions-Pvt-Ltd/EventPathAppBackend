@@ -12,6 +12,7 @@ import starRoute from './routes/starRoute.js';
 import ticketRoute from './routes/ticketRoute.js';
 import preferencesRoute from './routes/preferencesRoute.js';
 import appDataRoute from './routes/appDataRoute.js';
+import ambassadorRoute from './routes/ambassadorRoute.js';
 
 const app = express();
 
@@ -64,6 +65,9 @@ app.use('/api/stars', starRoute);
 
 // 10. Ticket routes
 app.use('/api/tickets', ticketRoute);
+
+// 11. Ambassador routes (Find Ambassadors)
+app.use('/api/ambassadors', ambassadorRoute);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

@@ -1,5 +1,5 @@
 import { createEvent, getMyEvents, getApprovedEvents, getEventById } from '../services/eventService.js';
-import { getPreferredEvents } from '../services/preferencesService.js';
+import { getPreferredEvents, getDistrictEvents } from '../services/preferencesService.js';
 
 export async function createEventController(req, res) {
   try {
@@ -82,8 +82,11 @@ export async function getPreferredEventsController(req, res) {
       return res.status(401).json({ error: 'User session invalid. Please log in again.' });
     }
 
-    const userId = user.userId || user.docId;
-    const events = await getPreferredEvents(userId);
+    const userId = req.query.userId || user.userId || user.docId;
+    const isDistrictOnly = req.query.districtOnly === 'true' || req.query.lane === 'true';
+    const events = isDistrictOnly
+      ? await getDistrictEvents(userId)
+      : await getPreferredEvents(userId);
 
     return res.status(200).json({
       success: true,
@@ -92,6 +95,26 @@ export async function getPreferredEventsController(req, res) {
   } catch (error) {
     console.error('Error in getPreferredEventsController:', error);
     return res.status(500).json({ error: error.message || 'Failed to fetch preferred events.' });
+  }
+}
+
+export async function getDistrictEventsController(req, res) {
+  try {
+    const user = req.user;
+    if (!user || (!user.userId && !user.docId)) {
+      return res.status(401).json({ error: 'User session invalid. Please log in again.' });
+    }
+
+    const userId = req.query.userId || user.userId || user.docId;
+    const events = await getDistrictEvents(userId);
+
+    return res.status(200).json({
+      success: true,
+      events,
+    });
+  } catch (error) {
+    console.error('Error in getDistrictEventsController:', error);
+    return res.status(500).json({ error: error.message || 'Failed to fetch district events.' });
   }
 }
 
@@ -172,6 +195,7 @@ export default {
   getMyEventsController,
   getApprovedEventsController,
   getPreferredEventsController,
+  getDistrictEventsController,
   getEventByIdController,
   shareEventRedirectController,
 };

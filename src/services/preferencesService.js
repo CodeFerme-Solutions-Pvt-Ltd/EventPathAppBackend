@@ -153,6 +153,52 @@ export async function getPreferredEvents(userId) {
   return await formatEvents(matchedEvents);
 }
 
+/**
+ * Fetches approved events matching user preferences based ONLY on district.
+ * (Event Lane)
+ */
+export async function getDistrictEvents(userId) {
+  if (!userId) {
+    const error = new Error('User ID is required.');
+    error.status = 400;
+    throw error;
+  }
+
+  // 1. Fetch user location preferences
+  const user = await getUserProfile(userId);
+  const userLocationPrefs = user.locationPreferences || {};
+  const userDistricts = extractPreferenceValues(
+    userLocationPrefs.selectedDistricts || userLocationPrefs.districts || userLocationPrefs.district
+  );
+
+  if (userDistricts.length === 0) {
+    return [];
+  }
+
+  // 2. Fetch approved events from base tables
+  const res = await query(
+    `${BASE_EVENT_SELECT} WHERE e.status IN ('approved', 'accepted') ORDER BY e.created_at DESC;`
+  );
+  const allEvents = res.rows;
+
+  // 3. Filter matching events based ONLY on district
+  const matchedEvents = allEvents.filter((event) => {
+    const eventLocPrefs = event.location_preferences || {};
+    const address = normalize(event.address);
+    const venue = normalize(event.venue_name);
+    const eventDistricts = extractPreferenceValues(
+      eventLocPrefs.selectedDistricts || eventLocPrefs.districts || eventLocPrefs.district || event.district || event.selectedDistrict
+    );
+
+    return userDistricts.some((dist) =>
+      eventDistricts.includes(dist) || address.includes(dist) || venue.includes(dist)
+    );
+  });
+
+  return await formatEvents(matchedEvents);
+}
+
 export default {
   getPreferredEvents,
+  getDistrictEvents,
 };

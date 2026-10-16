@@ -26,6 +26,7 @@ export async function getUserProfile(userId) {
       COALESCE(p.preferences, '{}'::jsonb) AS preferences,
       COALESCE(p.location_preferences, '{}'::jsonb) AS "locationPreferences",
       amb.organization_name AS "organizationName",
+      amb.department AS "department",
       amb.picture_url AS "pictureUrl",
       amb.status AS "ambassadorStatus",
       COALESCE(amb.status, 'approved') AS "status",

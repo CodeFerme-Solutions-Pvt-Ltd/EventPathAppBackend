@@ -60,7 +60,7 @@ export async function authenticateUser(identifier, password, deviceToken) {
 
   // If ambassador, verify approval status
   if (user.role === 'ambassador') {
-    const ambRes = await query(`SELECT organization_name, picture_url, status, is_approved FROM ambassador_profiles WHERE user_id = $1;`, [user.id]);
+    const ambRes = await query(`SELECT organization_name, department, picture_url, status, is_approved FROM ambassador_profiles WHERE user_id = $1;`, [user.id]);
     const ambProfile = ambRes.rows[0] || {};
 
     if (ambProfile.status === 'pending' || ambProfile.is_approved === false) {
@@ -90,6 +90,7 @@ export async function authenticateUser(identifier, password, deviceToken) {
       email: user.email,
       role: 'ambassador',
       organizationName: ambProfile.organization_name || '',
+      department: ambProfile.department || '',
       pictureUrl: ambProfile.picture_url ? await getPresignedViewUrl(ambProfile.picture_url) : '',
       status: ambProfile.status || 'approved',
       isApproved: ambProfile.is_approved !== false,

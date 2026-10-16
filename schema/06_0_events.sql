@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS events (
     organized_by VARCHAR(255),
     mode_of_event VARCHAR(20) NOT NULL DEFAULT 'offline' CHECK (mode_of_event IN ('offline', 'online', 'hybrid')),
     website_url TEXT,
-    created_by VARCHAR(64) REFERENCES users(id) ON DELETE SET NULL,
+    created_by VARCHAR(64),
     creator_role VARCHAR(20) NOT NULL DEFAULT 'user',
     status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'accepted', 'rejected')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
