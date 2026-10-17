@@ -63,8 +63,25 @@ export async function addOrganizer(req, res) {
   }
 }
 
+export async function getOrganizers(req, res) {
+  try {
+    const { getOrganizersFromDb } = await import('../services/appDataService.js');
+    const organizers = await getOrganizersFromDb();
+    return res.status(200).json({
+      success: true,
+      organizers,
+    });
+  } catch (error) {
+    console.error('Error in getOrganizers:', error);
+    return res.status(500).json({ success: false, error: 'Failed to retrieve organizers.' });
+  }
+}
+
 export default {
   getAppData,
+  getAppUpdateConfig,
+  getOrganizers,
   addPreference,
   addOrganizer,
 };
+

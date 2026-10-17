@@ -28,6 +28,12 @@ export async function registerAmbassadorInDb(ambassadorData, pictureFile) {
   const formattedMobileNumber = formatPhoneNumber(mobileNumber);
   const trimmedDept = department && typeof department === 'string' ? department.trim() : null;
 
+  // 2. Check if organization already has an active ambassador
+  const hasAmbassador = await checkOrganizationHasAmbassador(trimmedOrg);
+  if (hasAmbassador) {
+    throw new Error("Your organization already has an ambassador. You can't create an ambassador profile.");
+  }
+
   // 3. Uniqueness check in users
   const userCheck = await query(
     `SELECT username, email, mobile_number FROM users WHERE username = $1 OR email = $2 OR mobile_number = $3;`,

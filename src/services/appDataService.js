@@ -36,7 +36,9 @@ export async function getAppDataFromDb() {
   const organizersList = orgsRes.rows.map((r) => r.name);
   appData.Organizers = {
     names: organizersList,
+    values: organizersList,
   };
+  appData.organizers = organizersList;
 
   // 4. Fetch App Update Config
   appData.UpdateConfig = await getAppUpdateConfigFromDb();
