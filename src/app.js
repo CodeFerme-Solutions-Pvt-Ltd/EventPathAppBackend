@@ -13,6 +13,7 @@ import ticketRoute from './routes/ticketRoute.js';
 import preferencesRoute from './routes/preferencesRoute.js';
 import appDataRoute from './routes/appDataRoute.js';
 import ambassadorRoute from './routes/ambassadorRoute.js';
+import hiringAlertRoute from './routes/hiringAlertRoute.js';
 
 const app = express();
 
@@ -68,6 +69,9 @@ app.use('/api/tickets', ticketRoute);
 
 // 11. Ambassador routes (Find Ambassadors)
 app.use('/api/ambassadors', ambassadorRoute);
+
+// 12. Hiring Alerts routes
+app.use('/api/hiring-alerts', hiringAlertRoute);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

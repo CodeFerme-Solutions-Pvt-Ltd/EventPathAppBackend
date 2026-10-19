@@ -1,5 +1,8 @@
 import { createEvent, getMyEvents, getApprovedEvents, getEventById } from '../services/eventService.js';
 import { getPreferredEvents, getDistrictEvents } from '../services/preferencesService.js';
+import { getEventLaneEvents } from '../services/eventLaneService.js';
+import { getEventPoolEvents } from '../services/eventPoolService.js';
+import { getAllEvents } from '../services/allEventsService.js';
 
 export async function createEventController(req, res) {
   try {
@@ -64,14 +67,27 @@ export async function getMyEventsController(req, res) {
 
 export async function getApprovedEventsController(req, res) {
   try {
-    const events = await getApprovedEvents();
+    const events = await getAllEvents();
     return res.status(200).json({
       success: true,
       events,
     });
   } catch (error) {
     console.error('Error in getApprovedEventsController:', error);
-    return res.status(500).json({ error: error.message || 'Failed to fetch approved events.' });
+    return res.status(500).json({ error: error.message || 'Failed to fetch events.' });
+  }
+}
+
+export async function getAllEventsController(req, res) {
+  try {
+    const events = await getAllEvents();
+    return res.status(200).json({
+      success: true,
+      events,
+    });
+  } catch (error) {
+    console.error('Error in getAllEventsController:', error);
+    return res.status(500).json({ error: error.message || 'Failed to fetch all events.' });
   }
 }
 
@@ -85,8 +101,8 @@ export async function getPreferredEventsController(req, res) {
     const userId = req.query.userId || user.userId || user.docId;
     const isDistrictOnly = req.query.districtOnly === 'true' || req.query.lane === 'true';
     const events = isDistrictOnly
-      ? await getDistrictEvents(userId)
-      : await getPreferredEvents(userId);
+      ? await getEventLaneEvents(userId)
+      : await getEventPoolEvents(userId);
 
     return res.status(200).json({
       success: true,
@@ -106,7 +122,7 @@ export async function getDistrictEventsController(req, res) {
     }
 
     const userId = req.query.userId || user.userId || user.docId;
-    const events = await getDistrictEvents(userId);
+    const events = await getEventLaneEvents(userId);
 
     return res.status(200).json({
       success: true,
@@ -115,6 +131,46 @@ export async function getDistrictEventsController(req, res) {
   } catch (error) {
     console.error('Error in getDistrictEventsController:', error);
     return res.status(500).json({ error: error.message || 'Failed to fetch district events.' });
+  }
+}
+
+export async function getEventLaneController(req, res) {
+  try {
+    const user = req.user;
+    if (!user || (!user.userId && !user.docId)) {
+      return res.status(401).json({ error: 'User session invalid. Please log in again.' });
+    }
+
+    const userId = req.query.userId || user.userId || user.docId;
+    const events = await getEventLaneEvents(userId);
+
+    return res.status(200).json({
+      success: true,
+      events,
+    });
+  } catch (error) {
+    console.error('Error in getEventLaneController:', error);
+    return res.status(500).json({ error: error.message || 'Failed to fetch Event Lane events.' });
+  }
+}
+
+export async function getEventPoolController(req, res) {
+  try {
+    const user = req.user;
+    if (!user || (!user.userId && !user.docId)) {
+      return res.status(401).json({ error: 'User session invalid. Please log in again.' });
+    }
+
+    const userId = req.query.userId || user.userId || user.docId;
+    const events = await getEventPoolEvents(userId);
+
+    return res.status(200).json({
+      success: true,
+      events,
+    });
+  } catch (error) {
+    console.error('Error in getEventPoolController:', error);
+    return res.status(500).json({ error: error.message || 'Failed to fetch Event Pool events.' });
   }
 }
 
@@ -194,8 +250,11 @@ export default {
   createEventController,
   getMyEventsController,
   getApprovedEventsController,
+  getAllEventsController,
   getPreferredEventsController,
   getDistrictEventsController,
+  getEventLaneController,
+  getEventPoolController,
   getEventByIdController,
   shareEventRedirectController,
 };

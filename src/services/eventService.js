@@ -2,6 +2,9 @@ import crypto from 'crypto';
 import { query, pool } from '../config/db.js';
 import { uploadEventPosters, uploadSlabRegistrationImage } from './storageService.js';
 import { BASE_EVENT_SELECT, formatEvent, formatEvents } from './eventQueryHelper.js';
+import { getEventLaneEvents } from './eventLaneService.js';
+import { getEventPoolEvents } from './eventPoolService.js';
+import { getAllEvents } from './allEventsService.js';
 
 /**
  * Coerces the client-supplied registration object into the canonical shape.
@@ -130,6 +133,15 @@ export async function createEvent(eventData, files, user) {
     err.status = 400;
     throw err;
   }
+
+  const rawPrefs = preferences || {};
+  const categories = rawPrefs.categories || rawPrefs.category || [];
+  if (!Array.isArray(categories) || categories.length === 0) {
+    const err = new Error('At least one target category is required.');
+    err.status = 400;
+    throw err;
+  }
+
   const timeToMinutes = (value) => {
     if (!value || typeof value !== 'string') return null;
     const clean = value.trim();
@@ -317,12 +329,10 @@ export async function getMyEvents(userId) {
 }
 
 /**
- * Retrieves all approved events.
+ * Retrieves all registered events (no filtering, showing all).
  */
 export async function getApprovedEvents() {
-  const sql = `${BASE_EVENT_SELECT} WHERE e.status IN ('approved', 'accepted') ORDER BY e.created_at DESC;`;
-  const res = await query(sql);
-  return await formatEvents(res.rows);
+  return await getAllEvents();
 }
 
 /**
@@ -334,10 +344,16 @@ export async function getEventById(eventId) {
   return res.rows[0] ? await formatEvent(res.rows[0]) : null;
 }
 
+export { getEventLaneEvents, getEventPoolEvents, getAllEvents };
+
 export default {
   normaliseRegistration,
   createEvent,
   getMyEvents,
   getApprovedEvents,
+  getAllEvents,
   getEventById,
+  getEventLaneEvents,
+  getEventPoolEvents,
 };
+
